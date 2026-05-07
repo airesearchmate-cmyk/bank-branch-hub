@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bank Branch Location Dossier</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --paper: #f5efe2;
+  --paper2: #ede5d3;
+  --paperdeep: #e3d8be;
+  --ink: #1c1c1c;
+  --inksoft: #4a4a4a;
+  --inkfaint: #7a6f5a;
+  --rule: #c8b896;
+  --rulesoft: #ddd0b2;
+  --forest: #1f3d2c;
+  --forestsoft: #3d5a4a;
+  --gold: #b8843a;
+  --rust: #a8442e;
+  --p1: #4d7048;
+  --p2: #b8843a;
+  --p3: #a8442e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  background: var(--paper); color: var(--ink); line-height: 1.6; font-size: 16px;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(184,132,58,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(31,61,44,0.04) 0%, transparent 50%);
+  min-height: 100vh;
+}
+.container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+/* AUTH GATE */
+.gate {
+  position: fixed; inset: 0; background: var(--paper);
+  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.gate-card {
+  max-width: 480px; width: 100%; background: var(--paper2);
+  border: 1px solid var(--rule); padding: 40px 36px;
+  position: relative;
+}
+.gate-card::before {
+  content: ''; position: absolute; top: 12px; left: 12px; right: 12px;
+  height: 1px; background: var(--rule);
+}
+.gate-meta {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 14px;
+}
+.gate-title {
+  font-family: 'Fraunces', Georgia, serif; font-size: 30px; font-weight: 800;
+  color: var(--ink); line-height: 1.1; margin-bottom: 14px;
+}
+.gate-text {
+  font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-style: italic;
+  color: var(--inksoft); margin-bottom: 24px; line-height: 1.5;
+}
+.gate-field { margin-bottom: 16px; }
+.gate-label {
+  display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--forest); margin-bottom: 8px;
+}
+.gate-input {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--rule);
+  background: var(--paper); font-family: 'Manrope', sans-serif;
+  font-size: 14px; color: var(--ink); border-radius: 0;
+}
+.gate-input:focus { outline: 2px solid var(--gold); outline-offset: -2px; background: #fff; }
+.gate-btn {
+  width: 100%; padding: 14px; background: var(--forest); color: var(--paper);
+  border: 1px solid var(--forest); font-family: 'Manrope', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.18s; margin-top: 8px;
+}
+.gate-btn:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+.gate-btn:disabled { opacity: 0.5; cursor: wait; }
+.gate-error {
+  background: rgba(168,68,46,0.08); border-left: 3px solid var(--rust);
+  padding: 10px 14px; font-size: 13px; color: var(--rust); margin-top: 14px;
+  font-style: italic; font-family: 'Fraunces', Georgia, serif;
+}
+.gate-error[hidden] { display: none; }
+
+/* IDENTITY BAR */
+.id-bar {
+  background: var(--ink); color: var(--paper); padding: 12px 0;
+  font-size: 13px; position: sticky; top: 0; z-index: 60;
+}
+.id-bar-inner { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.id-chip {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 600; opacity: 0.7;
+}
+.id-chip strong {
+  color: var(--gold); font-family: 'Fraunces', Georgia, serif;
+  font-style: italic; font-size: 14px; opacity: 1;
+  letter-spacing: 0; text-transform: none; font-weight: 700; margin-left: 6px;
+}
+.id-members { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.id-member {
+  background: rgba(245,239,226,0.1); padding: 4px 10px; font-size: 12px;
+  border: 1px solid rgba(245,239,226,0.2); position: relative;
+}
+.id-member.me { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 700; }
+.id-member-role {
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.6; margin-left: 6px;
+}
+.id-leave {
+  background: transparent; border: 1px solid rgba(245,239,226,0.3);
+  color: var(--paper); padding: 6px 12px; font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; cursor: pointer; font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+}
+.id-leave:hover { background: rgba(245,239,226,0.1); }
+
+/* MASTHEAD */
+.masthead { padding: 36px 0 28px; border-bottom: 3px double var(--ink); }
+.masthead-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--inksoft); font-weight: 600;
+  padding-bottom: 14px; border-bottom: 1px solid var(--rule); margin-bottom: 22px;
+}
+.masthead-meta-right { color: var(--gold); }
+.masthead-title {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(40px, 6.5vw, 68px); line-height: 1.02;
+  letter-spacing: -0.025em; color: var(--ink); margin-bottom: 14px;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
+}
+.masthead-title em {
+  font-style: italic; font-weight: 600; color: var(--forest);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+.masthead-subtitle {
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+  font-size: 21px; color: var(--inksoft); font-weight: 400; max-width: 720px;
+}
+.masthead-ornament { display: flex; gap: 8px; margin-top: 18px; align-items: center; }
+.masthead-ornament span { height: 1px; background: var(--rule); flex: 1; }
+.masthead-ornament .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex: 0 0 auto; }
+
+/* NAV */
+.section-nav {
+  position: sticky; top: 44px; z-index: 50;
+  background: var(--paper); padding: 14px 0;
+  border-bottom: 1px solid var(--rule); margin-bottom: 56px;
+}
+.section-nav-list { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; }
+.section-nav a {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--inksoft); text-decoration: none;
+  padding: 9px 14px; border: 1px solid transparent; transition: all 0.18s;
+}
+.section-nav a:hover { color: var(--forest); border-color: var(--rule); background: var(--paper2); }
+.section-nav .num { color: var(--gold); margin-right: 6px; font-style: italic; font-family: 'Fraunces', Georgia, serif; }
+
+/* SECTIONS */
+.section { margin-bottom: 88px; }
+.section-num {
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+  font-size: 13px; color: var(--gold); font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; display: block;
+}
+.section-title {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: clamp(30px, 4.2vw, 44px); line-height: 1.08;
+  letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px;
+  padding-bottom: 18px; border-bottom: 2px solid var(--ink); position: relative;
+  font-variation-settings: "SOFT" 50;
+}
+.section-title::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 64px; height: 2px; background: var(--gold); }
+.section-lede {
+  font-family: 'Fraunces', Georgia, serif; font-size: 19px;
+  line-height: 1.55; color: var(--inksoft);
+  margin: 28px 0 36px; max-width: 740px;
+}
+.section-lede.dropcap::first-letter {
+  font-family: 'Fraunces', Georgia, serif; font-size: 68px;
+  font-weight: 800; line-height: 0.85; float: left;
+  margin: 8px 14px 0 0; color: var(--forest);
+}
+
+/* NOTE BOX */
+.note-box {
+  background: var(--paper); border-left: 3px solid var(--gold);
+  padding: 18px 22px; margin: 24px 0;
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+  font-size: 15.5px; color: var(--inksoft); line-height: 1.55;
+}
+.note-box strong {
+  font-style: normal; font-weight: 700; color: var(--ink);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  display: block; margin-bottom: 8px; font-family: 'Manrope', sans-serif;
+}
+
+/* SPINNER */
+.spinner-wrap {
+  background: var(--paper2); border: 1px solid var(--rule);
+  padding: 40px 36px; margin-top: 24px; position: relative;
+}
+.spinner-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 8px 0 32px; }
+.spinner-slot {
+  background: var(--paper); border: 2px solid var(--ink);
+  padding: 28px 24px 32px; text-align: center; position: relative; overflow: hidden;
+}
+.spinner-slot::before, .spinner-slot::after {
+  content: ''; position: absolute; left: 8px; right: 8px; height: 1px; background: var(--rule);
+}
+.spinner-slot::before { top: 8px; }
+.spinner-slot::after { bottom: 8px; }
+.spinner-slot-label {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--inkfaint); font-weight: 700; margin-bottom: 16px;
+}
+.spinner-slot-value {
+  font-family: 'Fraunces', Georgia, serif; font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800; color: var(--ink); min-height: 1.1em; line-height: 1.05;
+  font-variation-settings: "SOFT" 100;
+}
+.spinner-slot.spinning .spinner-slot-value { color: var(--gold); }
+.spinner-slot.locked { background: var(--forest); border-color: var(--forest); }
+.spinner-slot.locked .spinner-slot-label { color: rgba(245,239,226,0.6); }
+.spinner-slot.locked .spinner-slot-value { color: var(--gold); }
+.spinner-slot.locked::before, .spinner-slot.locked::after { background: var(--gold); opacity: 0.3; }
+
+.spinner-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.spinner-btn {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; padding: 14px 22px;
+  border: 1px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; transition: all 0.18s;
+  font-family: 'Manrope', sans-serif;
+}
+.spinner-btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+.spinner-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.spinner-btn.primary { background: var(--forest); color: var(--paper); border-color: var(--forest); padding: 14px 30px; }
+.spinner-btn.primary:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+
+.spinner-info {
+  margin-top: 28px; padding-top: 24px; border-top: 1px dashed var(--rule);
+  font-size: 14px; color: var(--inksoft); line-height: 1.55;
+}
+.spinner-info strong {
+  display: block; color: var(--gold); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px;
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+}
+.spinner-claimed {
+  margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;
+}
+.spinner-claimed-pill {
+  background: var(--paper); border: 1px solid var(--rule);
+  padding: 8px 14px; font-size: 12px; color: var(--ink);
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+}
+.spinner-claimed-pill strong { color: var(--forest); font-style: normal; font-weight: 700; }
+
+/* TIMELINE / PHASES */
+.timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.timeline-card {
+  background: var(--paper2); border: 1px solid var(--rule);
+  border-top: 4px solid var(--phasec); padding: 28px 24px;
+  position: relative; transition: transform 0.18s; display: flex; flex-direction: column;
+}
+.timeline-card:hover { transform: translateY(-3px); }
+.timeline-card::before {
+  content: attr(data-num); position: absolute; top: 18px; right: 22px;
+  font-family: 'Fraunces', Georgia, serif; font-size: 44px;
+  font-weight: 800; line-height: 1; color: var(--phasec); opacity: 0.18;
+}
+.timeline-week {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--phasec); font-weight: 700; margin-bottom: 10px;
+}
+.timeline-title {
+  font-family: 'Fraunces', Georgia, serif; font-size: 22px;
+  font-weight: 700; line-height: 1.18; color: var(--ink);
+  margin-bottom: 14px; padding-right: 36px;
+}
+.timeline-desc { font-size: 14px; color: var(--inksoft); line-height: 1.55; flex: 1; margin-bottom: 14px; }
+.timeline-async {
+  font-size: 12px; color: var(--forest); font-weight: 600;
+  background: rgba(31,61,44,0.06); padding: 8px 12px;
+  margin-bottom: 14px; border-left: 2px solid var(--forest);
+  font-style: italic; font-family: 'Fraunces', Georgia, serif;
+}
+.timeline-deliverable {
+  font-size: 11px; font-weight: 700; color: var(--ink);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  border-top: 1px dashed var(--rule); padding-top: 14px;
+}
+.timeline-deliverable span {
+  color: var(--inksoft); font-weight: 500; text-transform: none;
+  letter-spacing: 0; display: block; margin-top: 6px; font-size: 13px;
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+}
+@media (max-width: 900px) { .timeline { grid-template-columns: 1fr; } }
+
+/* ROLES */
+.roles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 24px; }
+.role-card { background: var(--paper); border: 1px solid var(--rule); overflow: hidden; transition: all 0.2s; }
+.role-card[open] { background: var(--paper2); }
+.role-card summary {
+  cursor: pointer; list-style: none; padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.role-card summary::-webkit-details-marker { display: none; }
+.role-card[open] summary { border-bottom: 1px solid var(--rule); }
+.role-header { display: flex; align-items: center; gap: 16px; }
+.role-glyph {
+  width: 46px; height: 46px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--forest); color: var(--paper);
+  font-family: 'Fraunces', Georgia, serif; font-weight: 800;
+  font-size: 20px; border-radius: 50%;
+}
+.role-name { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1.1; }
+.role-tagline { font-size: 12px; color: var(--inkfaint); margin-top: 4px; letter-spacing: 0.04em; }
+.role-toggle {
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  border: 1px solid var(--gold); padding: 6px 12px; flex-shrink: 0;
+}
+.role-card[open] .role-toggle::before { content: 'Collapse'; }
+.role-card:not([open]) .role-toggle::before { content: 'Expand'; }
+.role-body { padding: 24px 28px 30px; }
+.role-mission {
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+  font-size: 16px; color: var(--inksoft); margin-bottom: 22px;
+  line-height: 1.55; padding-left: 16px; border-left: 2px solid var(--gold);
+}
+.role-checklist { display: flex; flex-direction: column; gap: 0; }
+.role-week {
+  display: grid; grid-template-columns: 92px 1fr; gap: 18px;
+  padding: 14px 0; border-bottom: 1px dotted var(--rule);
+}
+.role-week:last-child { border-bottom: none; }
+.role-week-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--forest); padding-top: 1px;
+}
+.role-week-task { font-size: 14px; color: var(--ink); line-height: 1.5; }
+@media (max-width: 760px) { .roles-grid { grid-template-columns: 1fr; } }
+
+/* RESOURCES */
+.resources { margin-top: 24px; border-top: 1px solid var(--ink); }
+.resource-row {
+  display: grid; grid-template-columns: 220px 1fr 180px;
+  gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--rule); align-items: center;
+}
+.resource-name { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 700; color: var(--ink); }
+.resource-name span {
+  display: block; font-size: 11px; font-weight: 600; color: var(--gold);
+  letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px;
+  font-family: 'Manrope', sans-serif;
+}
+.resource-stats { font-size: 13.5px; color: var(--inksoft); line-height: 1.55; }
+.resource-stats strong { color: var(--ink); font-weight: 600; }
+.resource-link {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--paper);
+  background: var(--forest); border: 1px solid var(--forest);
+  text-decoration: none; padding: 12px 16px; text-align: center; transition: all 0.2s;
+}
+.resource-link:hover { background: var(--ink); border-color: var(--ink); }
+.resource-link::after { content: ' \2192'; }
+@media (max-width: 800px) {
+  .resource-row { grid-template-columns: 1fr; gap: 10px; padding: 20px 0; }
+  .resource-link { justify-self: start; padding: 10px 18px; }
+}
+
+/* WORKBENCH */
+.wb-wrap { background: var(--paper2); border: 1px solid var(--rule); padding: 28px; margin-top: 24px; }
+.wb-status-bar {
+  display: flex; gap: 16px; align-items: center; margin-bottom: 22px;
+  padding: 14px 18px; background: var(--paper); border: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.wb-status-bar strong {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--forest); font-weight: 700;
+}
+.wb-status-bar .live-dot {
+  display: inline-block; width: 8px; height: 8px; background: var(--p1);
+  border-radius: 50%; margin-right: 8px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.wb-sync { font-size: 12px; color: var(--inksoft); margin-left: auto; font-style: italic; font-family: 'Fraunces', Georgia, serif; }
+
+.wb-table-scroll { overflow-x: auto; border: 1px solid var(--rule); background: var(--paper); }
+.wb-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 980px; }
+.wb-table th, .wb-table td {
+  padding: 10px; text-align: left;
+  border-bottom: 1px solid var(--rulesoft); border-right: 1px solid var(--rulesoft);
+  vertical-align: top;
+}
+.wb-table th:last-child, .wb-table td:last-child { border-right: none; }
+.wb-table thead th {
+  background: var(--paperdeep); font-family: 'Fraunces', Georgia, serif;
+  font-size: 14px; font-weight: 700; color: var(--ink);
+  text-align: center; border-bottom: 2px solid var(--ink);
+}
+.wb-table th.factor-col { text-align: left; min-width: 220px; }
+.wb-table th.country-col { width: 160px; position: relative; }
+.wb-table th.country-col.owned { background: var(--gold); color: var(--ink); }
+.wb-team-header {
+  display: inline-block; cursor: text; padding: 2px 6px;
+  border-bottom: 1px dashed var(--gold); min-width: 100px; outline: none;
+}
+.wb-team-header:focus { background: var(--paper); border: 1px solid var(--gold); padding: 1px 5px; }
+.wb-team-header:hover { background: rgba(184,132,58,0.1); }
+.wb-th-owner {
+  display: block; font-size: 10px; font-weight: 600; opacity: 0.7;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-top: 4px; font-family: 'Manrope', sans-serif;
+}
+.wb-factor { font-weight: 600; color: var(--ink); display: block; }
+.wb-factor-note {
+  display: block; font-size: 11px; color: var(--inkfaint);
+  font-weight: 400; margin-top: 4px; font-style: italic;
+  font-family: 'Fraunces', Georgia, serif;
+}
+.wb-input {
+  width: 100%; padding: 7px 8px; border: 1px solid var(--rule);
+  background: var(--paper); font-family: 'Manrope', sans-serif;
+  font-size: 13px; color: var(--ink); border-radius: 0;
+}
+.wb-input:focus { outline: 2px solid var(--gold); outline-offset: -2px; background: #fff; }
+.wb-input.locked {
+  background: var(--paper2); color: var(--inksoft); cursor: not-allowed;
+  border-style: dashed;
+}
+.wb-input.mine { background: #fff8ec; border-color: var(--gold); }
+.wb-cell-meta {
+  display: block; font-size: 10px; color: var(--inkfaint);
+  margin-top: 4px; font-style: italic; font-family: 'Fraunces', Georgia, serif;
+}
+.wb-table tbody tr:hover { background: rgba(245,239,226,0.6); }
+.wb-help {
+  margin-top: 16px; padding: 14px 18px; background: var(--paper);
+  border-left: 3px solid var(--forest); font-size: 13px; color: var(--inksoft);
+  font-family: 'Fraunces', Georgia, serif; font-style: italic; line-height: 1.55;
+}
+
+/* DECISION */
+.decision-wrap {
+  background: var(--paper2); border: 1px solid var(--rule);
+  padding: 32px 36px; margin-top: 24px;
+}
+.decision-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+.decision-field { display: flex; flex-direction: column; }
+.decision-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--forest);
+  margin-bottom: 10px; font-family: 'Manrope', sans-serif;
+  display: flex; align-items: center; gap: 12px;
+}
+.decision-label .num {
+  display: inline-block; width: 24px; height: 24px;
+  background: var(--forest); color: var(--paper);
+  border-radius: 50%; text-align: center; line-height: 24px;
+  font-family: 'Fraunces', Georgia, serif; font-size: 12px;
+}
+.decision-input, .decision-textarea, .decision-select {
+  font-family: 'Manrope', sans-serif; font-size: 14px;
+  padding: 12px 14px; border: 1px solid var(--rule);
+  background: var(--paper); color: var(--ink);
+  border-radius: 0; width: 100%; resize: vertical;
+}
+.decision-textarea { min-height: 100px; line-height: 1.55; font-family: 'Fraunces', Georgia, serif; font-size: 15px; }
+.decision-input:focus, .decision-textarea:focus, .decision-select:focus {
+  outline: 2px solid var(--gold); outline-offset: -2px; background: #fff;
+}
+.decision-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 760px) { .decision-row-2 { grid-template-columns: 1fr; } }
+.decision-helper {
+  font-size: 12px; color: var(--inkfaint); margin-top: 6px;
+  font-style: italic; font-family: 'Fraunces', Georgia, serif;
+}
+.decision-byline {
+  font-size: 11px; color: var(--inkfaint); margin-top: 6px;
+  letter-spacing: 0.08em; text-transform: uppercase; font-family: 'Manrope', sans-serif; font-weight: 600;
+}
+.decision-controls {
+  margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--rule);
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+}
+.wb-btn, .decision-btn {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; padding: 11px 18px;
+  border: 1px solid var(--ink); background: var(--paper);
+  color: var(--ink); cursor: pointer; transition: all 0.18s;
+  font-family: 'Manrope', sans-serif;
+}
+.wb-btn:hover, .decision-btn:hover { background: var(--ink); color: var(--paper); }
+
+/* COLOPHON */
+.colophon {
+  border-top: 3px double var(--ink); padding: 36px 0 56px;
+  margin-top: 80px; text-align: center;
+  font-family: 'Fraunces', Georgia, serif; font-style: italic;
+  font-size: 14px; color: var(--inkfaint);
+}
+.colophon strong {
+  font-style: normal; font-weight: 700; color: var(--inksoft);
+  letter-spacing: 0.16em; text-transform: uppercase; font-size: 11px;
+  display: block; margin-bottom: 10px; font-family: 'Manrope', sans-serif;
+}
+
+/* SETUP WARNING */
+.setup-warn {
+  position: fixed; inset: 0; background: var(--paper); z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.setup-warn-card {
+  max-width: 560px; padding: 36px; background: var(--paper2);
+  border: 2px solid var(--rust); border-left-width: 8px;
+}
+.setup-warn-card h2 {
+  font-family: 'Fraunces', Georgia, serif; font-size: 28px;
+  color: var(--rust); margin-bottom: 14px;
+}
+.setup-warn-card p { font-size: 15px; color: var(--ink); line-height: 1.55; margin-bottom: 12px; }
+.setup-warn-card code {
+  background: var(--paper); padding: 2px 6px; font-family: monospace;
+  font-size: 13px; border: 1px solid var(--rule);
+}
+
+/* PRINT */
+@media print {
+  .gate, .id-bar, .section-nav, .spinner-controls, .decision-controls, .resource-link { display: none; }
+  body { background: white; color: black; }
+  .timeline-card, .role-card, .wb-wrap, .decision-wrap, .spinner-wrap { break-inside: avoid; }
+  .role-card[open] .role-body { display: block; }
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-meta">International Business Bureau</div>
+    <h2 class="gate-title">Join your team</h2>
+    <p class="gate-text">Enter the team code your instructor posted in Canvas, plus your full name. Your name will be visible to teammates as data is shared. You only do this once per browser.</p>
+    <div class="gate-field">
+      <label class="gate-label" for="g-team">Team Code</label>
+      <input class="gate-input" id="g-team" placeholder="e.g., TEAM-A4F2" autocomplete="off">
+    </div>
+    <div class="gate-field">
+      <label class="gate-label" for="g-name">Your Full Name</label>
+      <input class="gate-input" id="g-name" placeholder="e.g., Sarah Mendez" autocomplete="off">
+    </div>
+    <button class="gate-btn" id="g-go">Join Team</button>
+    <div class="gate-error" id="g-err" hidden></div>
+  </div>
+</div>
+
+<!-- IDENTITY BAR -->
+<div class="id-bar" id="id-bar" hidden>
+  <div class="container id-bar-inner">
+    <span class="id-chip">Team<strong id="id-team">\u2014</strong></span>
+    <div class="id-members" id="id-members"></div>
+    <button class="id-leave" id="id-leave">Leave Team</button>
+  </div>
+</div>
+
+<header class="masthead container">
+  <div class="masthead-meta">
+    <span>International Business Bureau &nbsp;|&nbsp; Vol. IX</span>
+    <span class="masthead-meta-right">Asynchronous Capstone &nbsp;&middot;&nbsp; Three Phases</span>
+  </div>
+  <h1 class="masthead-title">The Bank Branch <em>Location Dossier</em></h1>
+  <p class="masthead-subtitle">A team based asynchronous capstone in foreign market site selection. Your team will gather data on five candidate countries, evaluate which is riskiest, and recommend one for a new bank branch. No meetings required.</p>
+  <div class="masthead-ornament">
+    <span></span><div class="dot"></div><span></span><div class="dot"></div><span></span>
+  </div>
+</header>
+
+<nav class="section-nav">
+  <div class="container">
+    <ul class="section-nav-list">
+      <li><a href="#brief"><span class="num">I.</span> Brief</a></li>
+      <li><a href="#spinner"><span class="num">II.</span> Spin</a></li>
+      <li><a href="#timeline"><span class="num">III.</span> Phases</a></li>
+      <li><a href="#roles"><span class="num">IV.</span> Roles</a></li>
+      <li><a href="#resources"><span class="num">V.</span> Sources</a></li>
+      <li><a href="#workbench"><span class="num">VI.</span> Workbench</a></li>
+      <li><a href="#decision"><span class="num">VII.</span> Decision</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- BRIEF -->
+  <section id="brief" class="section">
+    <span class="section-num">I. The Brief</span>
+    <h2 class="section-title">Your assignment</h2>
+    <p class="section-lede dropcap">You are an analyst at a major international bank. Senior management is preparing to open a branch abroad and has narrowed the shortlist to four countries: Argentina, Finland, Mexico, and India. Your team will evaluate these four markets, plus one country of your own choosing, on fifteen factors covering demographics, wealth, financial conditions, governance, and economic freedom. Your job is two part. First, gather the actual data. Second, decide which country is riskiest to enter, and recommend which one the bank should choose.</p>
+    <div class="note-box">
+      <strong>How this works asynchronously</strong>
+      Every part of this project is designed to be done on your own schedule. No meetings, no live calls, no synchronous polls. Your work syncs to your teammates automatically as you type. When you need to discuss something, you post in the team Canvas thread and teammates reply over the next day or two.
+    </div>
+  </section>
+
+  <!-- SPINNER -->
+  <section id="spinner" class="section">
+    <span class="section-num">II. Receive your assignment</span>
+    <h2 class="section-title">Spin for your role and country</h2>
+    <p class="section-lede">Each team member is randomly assigned one of four roles and one of four candidate countries. The spinner below knows what your teammates have already claimed, so you cannot be assigned a role or country that is taken. The fifth country, your team's own choice, will be filled in collaboratively in the workbench.</p>
+
+    <div class="spinner-wrap">
+      <div class="spinner-stage">
+        <div class="spinner-slot" id="slot-role">
+          <div class="spinner-slot-label">Your Role</div>
+          <div class="spinner-slot-value" id="val-role">\u2014</div>
+        </div>
+        <div class="spinner-slot" id="slot-country">
+          <div class="spinner-slot-label">Your Country</div>
+          <div class="spinner-slot-value" id="val-country">\u2014</div>
+        </div>
+      </div>
+      <div class="spinner-controls">
+        <button class="spinner-btn primary" id="btn-spin">Receive Assignment</button>
+        <button class="spinner-btn" id="btn-respin" hidden>Re spin (only if a teammate needs to swap)</button>
+      </div>
+      <div class="spinner-info">
+        <strong>Already claimed by your team</strong>
+        <div class="spinner-claimed" id="claimed-list"><em style="color: var(--inkfaint); font-style: italic;">No one has claimed yet.</em></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline" class="section">
+    <span class="section-num">III. The Phases</span>
+    <h2 class="section-title">Three phases, fully asynchronous</h2>
+    <p class="section-lede">Each phase produces an artifact the next phase depends on. Phases are designed to overlap a little, so you can keep moving without waiting for everyone to finish.</p>
+
+    <div class="timeline">
+      <article class="timeline-card" data-num="01" style="--phasec: var(--p1);">
+        <div class="timeline-week">Phase One</div>
+        <h3 class="timeline-title">Spin and Set Up</h3>
+        <p class="timeline-desc">Spin to receive your role and country. Read the brief, the role description, and the source library. Each member also nominates one country in the team Canvas thread to serve as the team's fifth country, with a paragraph of reasoning. Replies happen on each member's own schedule.</p>
+        <div class="timeline-async">No meetings. Post and reply across several days.</div>
+        <div class="timeline-deliverable">Deliverable<span>Your spun assignment is saved automatically. Country nomination posted in Canvas.</span></div>
+      </article>
+
+      <article class="timeline-card" data-num="02" style="--phasec: var(--p2);">
+        <div class="timeline-week">Phase Two</div>
+        <h3 class="timeline-title">Gather the Data</h3>
+        <p class="timeline-desc">Each member fills in the workbench data row for their assigned country. The team's fifth country is filled in collaboratively, anyone can edit those cells. Citations go in the source field for each cell. The Research Lead reviews teammates' work and posts questions in Canvas; teammates reply on their schedule.</p>
+        <div class="timeline-async">Cells lock to their owner. Teammates see your data live but cannot overwrite it.</div>
+        <div class="timeline-deliverable">Deliverable<span>Workbench fully populated with data and sources. Graded individually by column ownership.</span></div>
+      </article>
+
+      <article class="timeline-card" data-num="03" style="--phasec: var(--p3);">
+        <div class="timeline-week">Phase Three</div>
+        <h3 class="timeline-title">Decide and Submit</h3>
+        <p class="timeline-desc">Each member writes a brief assessment in Canvas of which country is riskiest and why. Teammates reply over a few days. The team converges on a single recommendation. The Writing Lead drafts the memo using the Decision section below; the Quality Lead does a final check and submits to Canvas.</p>
+        <div class="timeline-async">Risk discussion happens entirely in Canvas threads. The Decision section here syncs as the team types.</div>
+        <div class="timeline-deliverable">Deliverable<span>Final memo submitted to Canvas with the Decision section as its core.</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section id="roles" class="section">
+    <span class="section-num">IV. Roles</span>
+    <h2 class="section-title">Who does what</h2>
+    <p class="section-lede">Roles are randomly assigned by the spinner above. Every role is essential. If you are unsure what a role does, expand the card.</p>
+
+    <div class="roles-grid">
+
+      <details class="role-card">
+        <summary>
+          <div class="role-header">
+            <div class="role-glyph">D</div>
+            <div>
+              <div class="role-name">Data Lead</div>
+              <div class="role-tagline">Owns the workbench's quality and completeness</div>
+            </div>
+          </div>
+          <span class="role-toggle"></span>
+        </summary>
+        <div class="role-body">
+          <div class="role-mission">You make sure every cell gets filled in, that data values look reasonable, and that the workbench is ready by the end of Phase Two. You are the one who notices when something is missing.</div>
+          <div class="role-checklist">
+            <div class="role-week"><div class="role-week-label">Phase 1</div><div class="role-week-task">Confirm everyone has spun. Post in the Canvas thread by mid week with a list of who got what role and country.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 2</div><div class="role-week-task">Open the workbench daily. If a teammate's column is mostly empty by Wednesday, post a friendly reminder in Canvas. Audit suspicious or out of range numbers.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 3</div><div class="role-week-task">Verify the team's fifth country has data for all fifteen factors before the Decision section is finalized.</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="role-card">
+        <summary>
+          <div class="role-header">
+            <div class="role-glyph">R</div>
+            <div>
+              <div class="role-name">Research Lead</div>
+              <div class="role-tagline">Reference checker and source auditor</div>
+            </div>
+          </div>
+          <span class="role-toggle"></span>
+        </summary>
+        <div class="role-body">
+          <div class="role-mission">The recommendation is only as good as its sources. You verify that every figure has a credible citation and that teammates are pulling from the right databases.</div>
+          <div class="role-checklist">
+            <div class="role-week"><div class="role-week-label">Phase 1</div><div class="role-week-task">Read the source library. Post in the Canvas thread a brief note on which database is best for each of the fifteen factors.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 2</div><div class="role-week-task">Review each teammate's citations as they are entered in the workbench. If a source is missing or looks off, ask in the Canvas thread; the teammate replies on their schedule.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 3</div><div class="role-week-task">Confirm citations in the final memo follow APA format and link to a real, accessible source.</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="role-card">
+        <summary>
+          <div class="role-header">
+            <div class="role-glyph">W</div>
+            <div>
+              <div class="role-name">Writing Lead</div>
+              <div class="role-tagline">Drafts the team's recommendation memo</div>
+            </div>
+          </div>
+          <span class="role-toggle"></span>
+        </summary>
+        <div class="role-body">
+          <div class="role-mission">An executive will read this memo. Your writing has to be clear, persuasive, and grounded in the data your team gathered.</div>
+          <div class="role-checklist">
+            <div class="role-week"><div class="role-week-label">Phase 1</div><div class="role-week-task">Post a one paragraph plan in the Canvas thread for how the memo will be structured.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 2</div><div class="role-week-task">As workbench data comes in, take notes. Begin drafting country profile paragraphs.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 3</div><div class="role-week-task">Lead the Decision section below. Fill in the team consensus once teammates have all weighed in via Canvas. Compose the final memo and hand it to Quality Lead.</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="role-card">
+        <summary>
+          <div class="role-header">
+            <div class="role-glyph">Q</div>
+            <div>
+              <div class="role-name">Quality Lead</div>
+              <div class="role-tagline">Final checkpoint before submission</div>
+            </div>
+          </div>
+          <span class="role-toggle"></span>
+        </summary>
+        <div class="role-body">
+          <div class="role-mission">You are the last set of eyes before submission. Your job is to make sure the deliverable is clean, complete, and on time.</div>
+          <div class="role-checklist">
+            <div class="role-week"><div class="role-week-label">Phase 1</div><div class="role-week-task">Read the assignment rubric carefully. Post a checklist in the Canvas thread of what the final deliverable must include.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 2</div><div class="role-week-task">Track progress quietly. Confirm by end of phase that every column in the workbench has data and citations.</div></div>
+            <div class="role-week"><div class="role-week-label">Phase 3</div><div class="role-week-task">Review the memo from Writing Lead. Verify file format, naming, word count, and that all teammates are credited. Submit on Canvas before the deadline.</div></div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- RESOURCES -->
+  <section id="resources" class="section">
+    <span class="section-num">V. Sources</span>
+    <h2 class="section-title">Where to find every statistic</h2>
+    <p class="section-lede">These six databases cover all fifteen factors. Bookmark them. Citations in your memo should point back to one of these sources, not to a secondary blog or summary article.</p>
+
+    <div class="resources">
+      <div class="resource-row">
+        <div class="resource-name"><span>01 &middot; Macroeconomic Core</span>The World Bank</div>
+        <div class="resource-stats">Use for: <strong>Population, Population Growth, GNI, GNI per Capita, External Debt, Inflation, Lending Rate, Deposit Rate.</strong> Search by country and indicator name.</div>
+        <a class="resource-link" href="https://data.worldbank.org/" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="resource-row">
+        <div class="resource-name"><span>02 &middot; Cross Check</span>International Monetary Fund</div>
+        <div class="resource-stats">Use for: <strong>verifying World Bank figures, sovereign debt, deposit rates.</strong> The IMF often has more recent quarterly figures.</div>
+        <a class="resource-link" href="https://www.imf.org/en/Data" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="resource-row">
+        <div class="resource-name"><span>03 &middot; Country Snapshots</span>CIA World Factbook</div>
+        <div class="resource-stats">Use for: <strong>quick country profiles, Gini coefficient, income distribution.</strong> Each country has a single page covering all major indicators.</div>
+        <a class="resource-link" href="https://www.cia.gov/the-world-factbook/" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="resource-row">
+        <div class="resource-name"><span>04 &middot; Corruption</span>Transparency International</div>
+        <div class="resource-stats">Use for: <strong>Corruption Perceptions Index score and rank.</strong> Higher scores mean cleaner governance.</div>
+        <a class="resource-link" href="https://www.transparency.org/en/cpi" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="resource-row">
+        <div class="resource-name"><span>05 &middot; Political Climate</span>Freedom House</div>
+        <div class="resource-stats">Use for: <strong>Political Rights, Civil Liberties, Freedom Status.</strong> Score range 1 to 7 where 1 is most free.</div>
+        <a class="resource-link" href="https://freedomhouse.org/countries/freedom-world/scores" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="resource-row">
+        <div class="resource-name"><span>06 &middot; Economic Freedom</span>Heritage Foundation</div>
+        <div class="resource-stats">Use for: <strong>Index of Economic Freedom, Property Rights, Financial Freedom.</strong> Scale 0 to 100, higher is freer.</div>
+        <a class="resource-link" href="https://www.heritage.org/index/" target="_blank" rel="noopener">Open</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKBENCH -->
+  <section id="workbench" class="section">
+    <span class="section-num">VI. Workbench</span>
+    <h2 class="section-title">Shared data workbench</h2>
+    <p class="section-lede">Fill in the actual data values for your assigned country. Cells in your column have a gold border and are yours to edit; cells in teammates' columns are locked to them. The fifth column is your team's chosen country, shared by everyone. Click the column header to rename it.</p>
+
+    <div class="wb-wrap">
+      <div class="wb-status-bar">
+        <span class="live-dot"></span>
+        <strong>Live Sync</strong>
+        <span style="font-size: 13px; color: var(--inksoft);">Your teammates see your edits within a second or two.</span>
+        <span class="wb-sync" id="wb-sync">Synced</span>
+      </div>
+
+      <div class="wb-table-scroll">
+        <table class="wb-table" id="wb-table">
+          <thead>
+            <tr>
+              <th class="factor-col">Factor</th>
+              <th class="country-col" data-country="Argentina">Argentina<span class="wb-th-owner" id="owner-Argentina"></span></th>
+              <th class="country-col" data-country="Finland">Finland<span class="wb-th-owner" id="owner-Finland"></span></th>
+              <th class="country-col" data-country="Mexico">Mexico<span class="wb-th-owner" id="owner-Mexico"></span></th>
+              <th class="country-col" data-country="India">India<span class="wb-th-owner" id="owner-India"></span></th>
+              <th class="country-col" data-country="TeamCountry">
+                <span class="wb-team-header" id="wb-team-name" contenteditable="true">Team Country</span>
+                <span class="wb-th-owner">Shared</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="wb-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="wb-help">
+        How to fill a cell: enter the value first (e.g., <em>"47.3 million"</em> or <em>"5.2%"</em>), then add the source in the small line below (e.g., <em>"World Bank, 2023"</em>). Citations belong to the source field, not buried inside the value.
+      </div>
+    </div>
+  </section>
+
+  <!-- DECISION -->
+  <section id="decision" class="section">
+    <span class="section-num">VII. Decision</span>
+    <h2 class="section-title">The team's recommendation</h2>
+    <p class="section-lede">After your team has discussed risk in the Canvas thread and reached consensus, the Writing Lead fills in this section. Anyone on the team can edit; the most recent author is shown beside each field. This is the core of your final memo.</p>
+
+    <div class="decision-wrap">
+      <div class="decision-grid">
+
+        <div class="decision-row-2">
+          <div class="decision-field">
+            <label class="decision-label" for="d-recommend"><span class="num">1</span>Recommended Country</label>
+            <select class="decision-select" id="d-recommend" data-key="recommend">
+              <option value="">Select one</option>
+              <option>Argentina</option>
+              <option>Finland</option>
+              <option>Mexico</option>
+              <option>India</option>
+              <option value="__team__">Our chosen country</option>
+            </select>
+            <div class="decision-byline" id="d-recommend-by"></div>
+          </div>
+          <div class="decision-field">
+            <label class="decision-label" for="d-riskiest"><span class="num">2</span>Riskiest Country</label>
+            <select class="decision-select" id="d-riskiest" data-key="riskiest">
+              <option value="">Select one</option>
+              <option>Argentina</option>
+              <option>Finland</option>
+              <option>Mexico</option>
+              <option>India</option>
+              <option value="__team__">Our chosen country</option>
+            </select>
+            <div class="decision-byline" id="d-riskiest-by"></div>
+          </div>
+        </div>
+
+        <div class="decision-field">
+          <label class="decision-label" for="d-reasoning"><span class="num">3</span>Why this country was recommended</label>
+          <textarea class="decision-textarea" id="d-reasoning" data-key="reasoning" placeholder="Three to five sentences. What makes this market the most attractive across the fifteen factors? Cite the strongest data points."></textarea>
+          <div class="decision-byline" id="d-reasoning-by"></div>
+        </div>
+
+        <div class="decision-field">
+          <label class="decision-label" for="d-risk"><span class="num">4</span>Why the riskiest country was rejected</label>
+          <textarea class="decision-textarea" id="d-risk" data-key="risk" placeholder="Three to five sentences. Which factors disqualified this market? Be specific about thresholds and data."></textarea>
+          <div class="decision-byline" id="d-risk-by"></div>
+        </div>
+
+        <div class="decision-field">
+          <label class="decision-label" for="d-summary"><span class="num">5</span>Executive summary statement</label>
+          <textarea class="decision-textarea" id="d-summary" data-key="summary" placeholder="One paragraph. Open with the recommendation. State the top three reasons. Close with one sentence on the riskiest market and why your team rejected it."></textarea>
+          <div class="decision-byline" id="d-summary-by"></div>
+        </div>
+
+      </div>
+
+      <div class="decision-controls">
+        <button class="decision-btn" id="d-export">Export decision as text</button>
+        <button class="decision-btn" id="d-print">Print or save as PDF</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="colophon container">
+  <strong>Colophon</strong>
+  Set in Fraunces and Manrope. Composed for the asynchronous classroom. <br>
+  Your team's deliverable is due at the end of Phase Three.
+</footer>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG \u2014 PASTE YOUR CONFIG HERE
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCb7bdG8IUeskevMdC_klve4q_hXvcJhUI",
+  authDomain: "best-location-c1a84.firebaseapp.com",
+  databaseURL: "https://best-location-c1a84-default-rtdb.firebaseio.com",
+  projectId: "best-location-c1a84",
+  storageBucket: "best-location-c1a84.firebasestorage.app",
+  messagingSenderId: "1077151138481",
+  appId: "1:1077151138481:web:cecfcec8112c711cb31890"
+};
+
+// Detect unset config and show a friendly setup warning
+if (firebaseConfig.apiKey === "REPLACE_ME") {
+  document.body.innerHTML = '<div class="setup-warn"><div class="setup-warn-card"><h2>Setup required</h2><p>This page is wired for Firebase, but the configuration has not been added yet.</p><p>Open this HTML file in a text editor, find the <code>firebaseConfig</code> block near the top of the script section, and paste in the values from your Firebase project console.</p><p>See the setup guide for step by step instructions.</p></div></div>';
+  throw new Error("Firebase not configured");
+}
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const FACTORS = [
+  { id: 'pop', name: 'Population', note: 'World Bank \u00B7 Population, total' },
+  { id: 'popgrowth', name: 'Population Growth Rate', note: 'World Bank \u00B7 Population growth (annual %)' },
+  { id: 'gni', name: 'Gross National Income', note: 'World Bank \u00B7 GNI Atlas method (current US$)' },
+  { id: 'gnipc', name: 'GNI per Capita', note: 'World Bank \u00B7 GNI per capita, Atlas method' },
+  { id: 'gini', name: 'Income Distribution (Gini)', note: 'CIA Factbook \u00B7 Distribution of family income' },
+  { id: 'debt', name: 'External Debt as % of GNI', note: 'World Bank \u00B7 External debt stocks (% of GNI)' },
+  { id: 'inflation', name: 'Inflation Rate', note: 'World Bank \u00B7 Inflation, consumer prices (annual %)' },
+  { id: 'lending', name: 'Lending Interest Rate', note: 'World Bank \u00B7 Lending interest rate (%)' },
+  { id: 'deposit', name: 'Deposit Interest Rate', note: 'IMF or World Bank \u00B7 Deposit interest rate (%)' },
+  { id: 'corruption', name: 'Level of Corruption (CPI)', note: 'Transparency International \u00B7 CPI score' },
+  { id: 'pr', name: 'Political Rights', note: 'Freedom House \u00B7 PR score (1 best, 7 worst)' },
+  { id: 'cl', name: 'Civil Liberties', note: 'Freedom House \u00B7 CL score (1 best, 7 worst)' },
+  { id: 'ief', name: 'Index of Economic Freedom', note: 'Heritage Foundation \u00B7 Overall IEF score' },
+  { id: 'property', name: 'Property Rights', note: 'Heritage Foundation \u00B7 Property Rights pillar' },
+  { id: 'finfree', name: 'Financial Freedom', note: 'Heritage Foundation \u00B7 Financial Freedom pillar' }
+];
+
+const ROLES = ['Data Lead', 'Research Lead', 'Writing Lead', 'Quality Lead'];
+const FIXED_COUNTRIES = ['Argentina', 'Finland', 'Mexico', 'India'];
+const ALL_COLS = ['Argentina', 'Finland', 'Mexico', 'India', 'TeamCountry'];
+
+// ============================================================
+// STATE
+// ============================================================
+let me = null;            // { uid, name, role, country }
+let teamCode = null;
+let teamData = {};        // mirror of the team subtree
+let teamRef = null;
+let unsubscribe = null;
+
+const LOCAL_KEY = 'bbDossierAuth_v1';
+
+// ============================================================
+// AUTH GATE
+// ============================================================
+const gate = document.getElementById('gate');
+const idBar = document.getElementById('id-bar');
+
+document.getElementById('g-go').addEventListener('click', joinTeam);
+document.getElementById('g-name').addEventListener('keydown', e => { if (e.key === 'Enter') joinTeam(); });
+document.getElementById('g-team').addEventListener('keydown', e => { if (e.key === 'Enter') joinTeam(); });
+document.getElementById('id-leave').addEventListener('click', leaveTeam);
+
+async function joinTeam() {
+  const codeRaw = document.getElementById('g-team').value.trim();
+  const name = document.getElementById('g-name').value.trim();
+  const err = document.getElementById('g-err');
+  err.hidden = true;
+  if (!codeRaw || !name) {
+    err.textContent = 'Both team code and name are required.';
+    err.hidden = false;
+    return;
+  }
+  const code = codeRaw.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  if (code.length < 3) {
+    err.textContent = 'Team code looks too short. Check the value posted in Canvas.';
+    err.hidden = false;
+    return;
+  }
+
+  const btn = document.getElementById('g-go');
+  btn.disabled = true; btn.textContent = 'Connecting...';
+
+  try {
+    const cred = await auth.signInAnonymously();
+    const uid = cred.user.uid;
+    teamCode = code;
+
+    const memberRef = db.ref('teams/' + code + '/members/' + uid);
+    await memberRef.update({
+      name,
+      joinedAt: firebase.database.ServerValue.TIMESTAMP,
+      lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
+    memberRef.onDisconnect().update({ lastSeen: firebase.database.ServerValue.TIMESTAMP });
+
+    me = { uid, name };
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ code, name })); } catch(e) {}
+
+    enterApp();
+  } catch (e) {
+    err.textContent = 'Could not connect: ' + (e.message || e);
+    err.hidden = false;
+    btn.disabled = false; btn.textContent = 'Join Team';
+  }
+}
+
+function leaveTeam() {
+  if (!confirm('Leave this team? Your data stays on the server but you will need to re enter the code to return.')) return;
+  try { localStorage.removeItem(LOCAL_KEY); } catch(e) {}
+  if (unsubscribe) { try { unsubscribe(); } catch(e) {} }
+  auth.signOut().finally(() => location.reload());
+}
+
+function enterApp() {
+  gate.style.display = 'none';
+  idBar.hidden = false;
+  document.getElementById('id-team').textContent = teamCode;
+  buildWorkbenchSkeleton();
+  subscribeTeam();
+  wireDecisionInputs();
+  wireSpinner();
+  wireTeamHeader();
+  wireExportButtons();
+}
+
+// Auto resume if returning
+(function tryResume() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch(e) {}
+  if (saved && saved.code && saved.name) {
+    document.getElementById('g-team').value = saved.code;
+    document.getElementById('g-name').value = saved.name;
+  }
+})();
+
+// ============================================================
+// SUBSCRIBE TO TEAM
+// ============================================================
+function subscribeTeam() {
+  teamRef = db.ref('teams/' + teamCode);
+  const handler = (snap) => {
+    teamData = snap.val() || {};
+    renderMembers();
+    renderSpinner();
+    renderWorkbench();
+    renderTeamCountry();
+    renderDecision();
+    setSync('Synced');
+  };
+  teamRef.on('value', handler);
+  unsubscribe = () => teamRef.off('value', handler);
+}
+
+function setSync(text) {
+  const el = document.getElementById('wb-sync');
+  if (el) el.textContent = text;
+}
+
+// ============================================================
+// MEMBERS
+// ============================================================
+function renderMembers() {
+  const members = teamData.members || {};
+  const wrap = document.getElementById('id-members');
+  wrap.innerHTML = '';
+  Object.entries(members).forEach(([uid, m]) => {
+    const el = document.createElement('span');
+    el.className = 'id-member' + (uid === me.uid ? ' me' : '');
+    el.innerHTML = m.name + (m.role ? '<span class="id-member-role">' + m.role + '</span>' : '');
+    wrap.appendChild(el);
+  });
+  // refresh me snapshot
+  if (members[me.uid]) me = Object.assign(me, members[me.uid]);
+
+  // refresh column owner labels
+  ALL_COLS.forEach(c => {
+    const el = document.getElementById('owner-' + c);
+    if (!el) return;
+    const owner = Object.values(members).find(m => m.country === c);
+    el.textContent = owner ? 'by ' + owner.name : '';
+  });
+  // highlight my column
+  document.querySelectorAll('.country-col').forEach(th => {
+    if (me.country && th.dataset.country === me.country) th.classList.add('owned');
+    else th.classList.remove('owned');
+  });
+}
+
+// ============================================================
+// SPINNER
+// ============================================================
+function wireSpinner() {
+  document.getElementById('btn-spin').addEventListener('click', spin);
+  document.getElementById('btn-respin').addEventListener('click', () => {
+    if (confirm('Re spinning will clear your role and country and let you spin again. Use this only if a teammate is stuck or asked you to swap.')) {
+      const ref = db.ref('teams/' + teamCode + '/members/' + me.uid);
+      ref.update({ role: null, country: null });
+    }
+  });
+}
+
+function renderSpinner() {
+  const members = teamData.members || {};
+  const myMember = members[me.uid] || {};
+  const claimedRoles = Object.values(members).filter(m => m.role).map(m => m.role);
+  const claimedCountries = Object.values(members).filter(m => m.country).map(m => m.country);
+
+  const valRole = document.getElementById('val-role');
+  const valCountry = document.getElementById('val-country');
+  const slotRole = document.getElementById('slot-role');
+  const slotCountry = document.getElementById('slot-country');
+  const btnSpin = document.getElementById('btn-spin');
+  const btnRespin = document.getElementById('btn-respin');
+
+  if (myMember.role && myMember.country) {
+    valRole.textContent = myMember.role;
+    valCountry.textContent = myMember.country;
+    slotRole.classList.add('locked');
+    slotCountry.classList.add('locked');
+    btnSpin.hidden = true;
+    btnRespin.hidden = false;
+  } else {
+    valRole.textContent = myMember.role || '\u2014';
+    valCountry.textContent = myMember.country || '\u2014';
+    slotRole.classList.remove('locked');
+    slotCountry.classList.remove('locked');
+    btnSpin.hidden = false;
+    btnRespin.hidden = true;
+  }
+
+  // Render claimed list
+  const list = document.getElementById('claimed-list');
+  const others = Object.entries(members).filter(([uid, m]) => uid !== me.uid && (m.role || m.country));
+  if (others.length === 0) {
+    list.innerHTML = '<em style="color: var(--inkfaint); font-style: italic;">No teammate has claimed yet.</em>';
+  } else {
+    list.innerHTML = others.map(([uid, m]) =>
+      '<span class="spinner-claimed-pill"><strong>' + m.name + '</strong> &middot; ' + (m.role || '?') + ' &middot; ' + (m.country || '?') + '</span>'
+    ).join('');
+  }
+}
+
+async function spin() {
+  const members = teamData.members || {};
+  const claimedRoles = Object.values(members).filter(m => m.uid !== me.uid && m.role).map(m => m.role);
+  const claimedCountries = Object.values(members).filter(m => m.uid !== me.uid && m.country).map(m => m.country);
+
+  const availableRoles = ROLES.filter(r => !claimedRoles.includes(r));
+  const availableCountries = FIXED_COUNTRIES.filter(c => !claimedCountries.includes(c));
+
+  if (availableRoles.length === 0 || availableCountries.length === 0) {
+    alert('All roles and countries are claimed. If a teammate needs to swap, they should re spin first.');
+    return;
+  }
+
+  const slotRole = document.getElementById('slot-role');
+  const slotCountry = document.getElementById('slot-country');
+  const valRole = document.getElementById('val-role');
+  const valCountry = document.getElementById('val-country');
+  slotRole.classList.add('spinning');
+  slotCountry.classList.add('spinning');
+
+  let ticks = 0;
+  const interval = setInterval(() => {
+    valRole.textContent = ROLES[Math.floor(Math.random() * ROLES.length)];
+    valCountry.textContent = FIXED_COUNTRIES[Math.floor(Math.random() * FIXED_COUNTRIES.length)];
+    ticks++;
+    if (ticks >= 16) {
+      clearInterval(interval);
+      const role = availableRoles[Math.floor(Math.random() * availableRoles.length)];
+      const country = availableCountries[Math.floor(Math.random() * availableCountries.length)];
+      valRole.textContent = role;
+      valCountry.textContent = country;
+      slotRole.classList.remove('spinning');
+      slotCountry.classList.remove('spinning');
+      db.ref('teams/' + teamCode + '/members/' + me.uid).update({ role, country });
+    }
+  }, 70);
+}
+
+// ============================================================
+// TEAM COUNTRY HEADER
+// ============================================================
+function wireTeamHeader() {
+  const el = document.getElementById('wb-team-name');
+  let timer = null;
+  el.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const v = el.textContent.trim() || 'Team Country';
+      db.ref('teams/' + teamCode + '/teamCountry').set(v);
+    }, 600);
+  });
+  el.addEventListener('blur', () => {
+    const v = el.textContent.trim() || 'Team Country';
+    el.textContent = v;
+    db.ref('teams/' + teamCode + '/teamCountry').set(v);
+  });
+}
+
+function renderTeamCountry() {
+  const el = document.getElementById('wb-team-name');
+  const v = teamData.teamCountry || 'Team Country';
+  if (el && document.activeElement !== el && el.textContent !== v) el.textContent = v;
+}
+
+// ============================================================
+// WORKBENCH
+// ============================================================
+function buildWorkbenchSkeleton() {
+  const tbody = document.getElementById('wb-tbody');
+  let html = '';
+  FACTORS.forEach(f => {
+    html += '<tr data-factor="' + f.id + '">';
+    html += '<td><span class="wb-factor">' + f.name + '</span><span class="wb-factor-note">' + f.note + '</span></td>';
+    ALL_COLS.forEach(c => {
+      const cellId = f.id + '__' + c;
+      html += '<td>'
+        + '<input type="text" class="wb-input" data-cell="' + cellId + '" data-factor="' + f.id + '" data-country="' + c + '" data-kind="value" placeholder="value">'
+        + '<input type="text" class="wb-input" data-cell="' + cellId + '" data-factor="' + f.id + '" data-country="' + c + '" data-kind="source" placeholder="source" style="margin-top: 4px; font-size: 11px;">'
+        + '<span class="wb-cell-meta" data-cell-meta="' + cellId + '"></span>'
+        + '</td>';
+    });
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  // Wire input events with debounced save
+  const saveTimers = {};
+  tbody.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('wb-input')) return;
+    if (e.target.classList.contains('locked')) { e.target.value = e.target.dataset.lastVal || ''; return; }
+    const cellId = e.target.dataset.cell;
+    const kind = e.target.dataset.kind;
+    const country = e.target.dataset.country;
+    if (!canEditColumn(country)) {
+      e.target.value = e.target.dataset.lastVal || '';
+      return;
+    }
+    setSync('Saving...');
+    clearTimeout(saveTimers[cellId + '_' + kind]);
+    saveTimers[cellId + '_' + kind] = setTimeout(() => {
+      const ref = db.ref('teams/' + teamCode + '/cells/' + cellId);
+      const update = {};
+      update[kind] = e.target.value;
+      update.ownerUid = me.uid;
+      update.ownerName = me.name;
+      update.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+      ref.update(update);
+    }, 400);
+  });
+}
+
+function canEditColumn(country) {
+  if (country === 'TeamCountry') return true; // shared by everyone
+  const ownerUid = getColumnOwnerUid(country);
+  if (!ownerUid) return true; // unclaimed, anyone can fill
+  return ownerUid === me.uid;
+}
+
+function getColumnOwnerUid(country) {
+  if (country === 'TeamCountry') return null;
+  const members = teamData.members || {};
+  for (const [uid, m] of Object.entries(members)) {
+    if (m.country === country) return uid;
+  }
+  return null;
+}
+
+function renderWorkbench() {
+  const cells = teamData.cells || {};
+  document.querySelectorAll('.wb-input').forEach(inp => {
+    const cellId = inp.dataset.cell;
+    const kind = inp.dataset.kind;
+    const country = inp.dataset.country;
+    const cell = cells[cellId] || {};
+    const ownerUid = getColumnOwnerUid(country);
+    const isMine = country === 'TeamCountry' || (ownerUid === me.uid);
+    const isLocked = country !== 'TeamCountry' && ownerUid && ownerUid !== me.uid;
+
+    if (document.activeElement !== inp) {
+      inp.value = cell[kind] || '';
+      inp.dataset.lastVal = inp.value;
+    }
+    inp.classList.toggle('locked', !!isLocked);
+    inp.classList.toggle('mine', !!isMine && !!ownerUid);
+    inp.disabled = !!isLocked;
+    inp.title = isLocked ? 'Locked. Owned by teammate.' : '';
+  });
+  // cell meta (last updater)
+  document.querySelectorAll('[data-cell-meta]').forEach(span => {
+    const id = span.dataset.cellMeta;
+    const cell = cells[id];
+    if (cell && cell.ownerName) span.textContent = 'by ' + cell.ownerName;
+    else span.textContent = '';
+  });
+}
+
+// ============================================================
+// DECISION
+// ============================================================
+function wireDecisionInputs() {
+  const fields = ['d-recommend', 'd-riskiest', 'd-reasoning', 'd-risk', 'd-summary'];
+  const saveTimers = {};
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    const key = el.dataset.key;
+    el.addEventListener('input', () => {
+      setSync('Saving...');
+      clearTimeout(saveTimers[key]);
+      saveTimers[key] = setTimeout(() => {
+        db.ref('teams/' + teamCode + '/decision/' + key).set({
+          value: el.value,
+          by: me.name,
+          at: firebase.database.ServerValue.TIMESTAMP
+        });
+      }, 500);
+    });
+  });
+}
+
+function renderDecision() {
+  const d = teamData.decision || {};
+  const map = { 'd-recommend': 'recommend', 'd-riskiest': 'riskiest', 'd-reasoning': 'reasoning', 'd-risk': 'risk', 'd-summary': 'summary' };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    const by = document.getElementById(id + '-by');
+    const data = d[key] || {};
+    if (document.activeElement !== el) el.value = data.value || '';
+    if (by) by.textContent = data.by ? 'Last edit by ' + data.by : '';
+  });
+}
+
+// ============================================================
+// EXPORT BUTTONS
+// ============================================================
+function wireExportButtons() {
+  document.getElementById('d-print').addEventListener('click', () => window.print());
+  document.getElementById('d-export').addEventListener('click', exportDecision);
+}
+
+function exportDecision() {
+  const d = teamData.decision || {};
+  const teamCountry = teamData.teamCountry || 'Team Country';
+  const members = Object.values(teamData.members || {}).map(m => m.name + ' (' + (m.role || 'no role') + ', ' + (m.country || 'no country') + ')').join('; ');
+  const resolveCountry = (v) => v === '__team__' ? teamCountry : (v || '');
+  const rec = d.recommend ? d.recommend.value : '';
+  const risk = d.riskiest ? d.riskiest.value : '';
+
+  let out = 'BANK BRANCH LOCATION ANALYSIS\n';
+  out += 'Team: ' + teamCode + '\n';
+  out += 'Members: ' + members + '\n';
+  out += 'Generated: ' + new Date().toLocaleString() + '\n\n';
+  out += 'RECOMMENDED COUNTRY: ' + resolveCountry(rec) + '\n';
+  out += 'RISKIEST COUNTRY: ' + resolveCountry(risk) + '\n\n';
+  out += 'WHY RECOMMENDED:\n' + ((d.reasoning && d.reasoning.value) || '(blank)') + '\n\n';
+  out += 'WHY RISKIEST WAS REJECTED:\n' + ((d.risk && d.risk.value) || '(blank)') + '\n\n';
+  out += 'EXECUTIVE SUMMARY:\n' + ((d.summary && d.summary.value) || '(blank)') + '\n';
+
+  const blob = new Blob([out], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bank_branch_decision_' + teamCode + '.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
